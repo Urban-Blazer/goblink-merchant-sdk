@@ -15,8 +15,9 @@ export function createWebhookHandler(options: WebhookHandlerOptions) {
     try {
       const rawBody = await request.text();
       const signature = request.headers.get("x-goblink-signature") ?? "";
+      const timestamp = request.headers.get("x-goblink-timestamp") ?? undefined;
 
-      if (!verifyWebhookSignature(rawBody, signature, options.secret)) {
+      if (!verifyWebhookSignature(rawBody, signature, options.secret, timestamp)) {
         return new Response(JSON.stringify({ error: "Invalid signature" }), {
           status: 401,
           headers: { "Content-Type": "application/json" },

@@ -1,6 +1,6 @@
 {
   "name": "@goblink/merchant-sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Official goBlink Merchant SDK — accept crypto payments in any JS/TS app",
   "type": "module",
   "main": "./dist/index.cjs",

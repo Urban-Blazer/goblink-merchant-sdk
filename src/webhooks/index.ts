@@ -1,15 +1,29 @@
 import type { WebhookHandlerOptions, WebhookPayload, Payment } from "../types.js";
 import { createHmac } from "node:crypto";
 
+/**
+ * Verify a goBlink webhook signature.
+ * The merchant server signs `${timestamp}.${payload}` with HMAC-SHA256.
+ * Pass the timestamp from the X-GoBlink-Timestamp header.
+ */
 export function verifyWebhookSignature(
   payload: string,
   signature: string,
   secret: string,
+  timestamp?: string,
 ): boolean {
+  const message = timestamp ? `${timestamp}.${payload}` : payload;
   const expected = createHmac("sha256", secret)
-    .update(payload)
+    .update(message)
     .digest("hex");
-  return expected === signature;
+
+  // Constant-time comparison to prevent timing attacks
+  if (expected.length !== signature.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < expected.length; i++) {
+    mismatch |= expected.charCodeAt(i) ^ signature.charCodeAt(i);
+  }
+  return mismatch === 0;
 }
 
 export interface WebhookRequest {
@@ -54,8 +68,10 @@ export function webhookHandler(options: WebhookHandlerOptions) {
       const rawBody = await getRawBody(req);
       const signature =
         (req.headers["x-goblink-signature"] as string) ?? "";
+      const timestamp =
+        (req.headers["x-goblink-timestamp"] as string) ?? undefined;
 
-      if (!verifyWebhookSignature(rawBody, signature, options.secret)) {
+      if (!verifyWebhookSignature(rawBody, signature, options.secret, timestamp)) {
         res.status(401).json({ error: "Invalid signature" });
         return;
       }

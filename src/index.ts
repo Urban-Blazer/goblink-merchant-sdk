@@ -37,8 +37,9 @@ export class GoBlink {
     payload: string,
     signature: string,
     secret: string,
+    timestamp?: string,
   ): boolean {
-    return verifyWebhookSignature(payload, signature, secret);
+    return verifyWebhookSignature(payload, signature, secret, timestamp);
   }
 }
 

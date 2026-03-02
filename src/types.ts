@@ -42,9 +42,27 @@ export interface Payment {
   orderId?: string;
   expiresAt: string;
   createdAt: string;
+  updatedAt?: string;
+  confirmedAt?: string;
   isTest: boolean;
+  // Crypto settlement details
+  cryptoAmount?: number;
+  cryptoToken?: string;
+  cryptoChain?: string;
+  customerWallet?: string;
+  customerChain?: string;
+  sendTxHash?: string;
+  fulfillmentTxHash?: string;
+  // Fee breakdown
+  feeAmount?: number;
+  feeCurrency?: string;
+  netAmount?: number;
+  // Multi-currency
   originalAmount?: number;
   originalCurrency?: Currency;
+  // URLs
+  returnUrl?: string;
+  metadata?: Record<string, unknown>;
   refunds?: Refund[];
 }
 
